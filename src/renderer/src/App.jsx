@@ -8,6 +8,7 @@ function App() {
   // Estados de datos base
   const [rutaCSV, setRutaCSV] = useState("")
   const [dispositivosConfirmados, setDispositivosConfirmados] = useState(false)
+  const [ipsCargadas, setIpsCargadas] = useState(false)
   const [consola, setConsola] = useState(["> AutoPKT Iniciado. Listo para operar."])
   const consolaRef = useRef(null)
 
@@ -16,6 +17,16 @@ function App() {
   const [routersSeleccionados, setRoutersSeleccionados] = useState([])
   const [configuraciones, setConfiguraciones] = useState([]) 
 
+
+  const [rutaIPsCSV, setRutaIPsCSV] = useState("") // 👈 Si falta esto, la pestaña falla
+  const handleCargarArchivoIPs = async () => {
+    // Esto llama al explorador de archivos de Windows que configuramos en Electron
+    const archivo = await window.electron.ipcRenderer.invoke('abrir-archivo')
+    if (archivo) {
+      setRutaIPsCSV(archivo)
+      log(`Archivo de IPs seleccionado: ${archivo.split('\\').pop()}`)
+    }
+  }
   const log = (mensaje) => setConsola((prev) => [...prev, `> ${mensaje}`])
 
   useEffect(() => {
@@ -42,16 +53,43 @@ function App() {
         body: JSON.stringify({ ruta: rutaCSV }) 
       })
       const data = await res.json()
-      
       setDispositivosConfirmados(true)
       setRoutersDisponibles(data.routers) 
       log(`Éxito: ${data.mensaje}`)
       
+      const res2 = await fetch('http://127.0.0.1:5000/api/guardar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ saludo1: rutaCSV, saludo2: rutaCSV })
+      });
+
+      console.log(res2); // 👈 agrega esto
+      const data2 = await res2.json();
+      console.log(data2);
+
     } catch (error) {
       console.error(error) // Para ver el error real con F12 si falla
       log("Error Fatal: No se pudo contactar al servidor Python en 127.0.0.1.")
     }
   }
+
+  const guardarRuta = async () => {
+     try {
+      const res = await fetch('http://127.0.0.1:5000/api/cargarIPs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rutaIPs: rutaIPsCSV })
+      })
+      const data = await res.json()
+
+      setIpsCargadas(true)
+      log(`Respuesta del servidor yammmm: ${data.mensaje}`)
+    } catch (error) {
+      log("Error al intentar generar el archivo PKT.")
+    }
+  }
+
+  
 
   const handleGenerarXML = async () => {
     log("Solicitando compilación final al servidor Python...")
@@ -144,12 +182,46 @@ const aplicarProtocolo = async (protocolo) => {
       case 'ips':
         return (
           <div className="tab-panel">
-            <h2>Asignación de Direccionamiento IP</h2>
-            <p style={{color: 'var(--text-muted)'}}>El sistema calculará las subredes necesarias para los enlaces identificados.</p>
-            <div style={{ background: 'var(--bg-app)', padding: '30px', borderRadius: '8px', border: '1px dashed var(--border)', textAlign: 'center' }}>
-              <button className="btn btn-primary" style={{margin: '0 auto'}} disabled={!dispositivosConfirmados} onClick={() => log("Calculando subredes y asignando IPs a las interfaces...")}>
-                Ejecutar Autoconfiguración de IPs
-              </button>
+            <h2>Configuración de Direccionamiento IP</h2>
+            <p style={{ color: 'var(--text-muted)' }}>Carga de parámetros de red mediante archivo plano.</p>
+
+            {/* Contenedor para centrar la tarjeta elegante */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '30px' }}>
+              
+              <div className="ip-card-upload">
+                {/* 👇 HEMOS QUITADO EL ICONO DE AQUÍ 👇 */}
+                
+                {/* Añadimos un margen superior al título para que respire */}
+                <h3 style={{ marginTop: '0px', color: 'var(--text-main)' }}>📄Cargar Archivo de Configuración</h3>
+                
+                <div className="format-hint">
+                  <strong>Formato requerido:</strong><br/>
+                  <code>Dispositivo IP /Máscara</code><br/>
+                  <small>Ej: PC1 100.100.50.63 /8</small>
+                </div>
+
+                <div className="upload-actions">
+                  {/* Botón para abrir explorador de Windows */}
+                  <button className="btn btn-primary_2" onClick={handleCargarArchivoIPs}>
+                    📁 Seleccionar archivo .txt
+                  </button>
+                  
+                  {/* Visor de la ruta del archivo */}
+                  <div className="ruta-display">
+                    {rutaIPsCSV ? rutaIPsCSV.split('\\').pop() : "Sin archivo seleccionado"}
+                  </div>
+
+                  {/* Botón de acción final */}
+                  <button 
+                    className="btn btn-success" 
+                    disabled={!rutaIPsCSV || ipsCargadas} 
+                    onClick={guardarRuta}
+                  >
+                    🚀 Cargar y Validar IPs
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
         )

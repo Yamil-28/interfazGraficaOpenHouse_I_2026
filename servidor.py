@@ -11,16 +11,17 @@ class GeneralCore:
     def __init__(self):
         self.grafo = [] # Esta lista persistirá en memoria
         self.rutaDeConexiones = None # Inicializamos en None
-        self.crear_txt_prueba()
+        # Crea el archivo de prueba al iniciar el servidor
         print(">>> Objeto GeneralCore instanciado y listo.")
 
-    def crear_txt_prueba(self):
+    def crear_txt_prueba(self,saludo1,saludo2):
         try:
             with open("SERVIDOR_VIVO.txt", "w", encoding="utf-8") as archivo:
                 archivo.write("--- REPORTE DE SISTEMA AUTOPKT ---\n")
                 archivo.write(f"Último encendido: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
                 archivo.write("¡Felicidades.\n")
                 archivo.write(f"Estado inicial de ruta: {self.rutaDeConexiones}\n")
+                archivo.write(f"Ruta recibida para prueba mmm: {saludo1,saludo2}\n")
             print(">>> Archivo SERVIDOR_VIVO.txt generado como prueba de vida.")
         except Exception as e:
             print(f"Error al crear archivo de prueba: {e}")
@@ -40,13 +41,29 @@ class GeneralCore:
     def aplicar_enrutamiento(self, protocolo, nodos):
         # Aquí se modificaría el objeto que ya existe en memoria
         return f"Protocolo {protocolo} aplicado a {nodos}"
-
+    
+    def cargarIPs(self, IPs):
+        print(f"Ruta de IPs recibida: {IPs}")
+        return f"Ruta de IPs: {IPs}"
 
 # CREACIÓN DEL OBJETO ÚNICO (Singleton)
 nucleo = GeneralCore()
 
 
 # --- RUTAS DE LA API REST ---
+
+@app.route('/api/cargarIPs', methods=['POST'])
+def ruta_IPs():
+    datos = request.json
+    mensaje = nucleo.cargarIPs(datos.get('rutaIPs'))
+    return jsonify({"mensaje": "Ruta guardada."})
+
+
+@app.route('/api/guardar', methods=['POST'])
+def ruta_guardar():
+    datos = request.json
+    mensaje = nucleo.crear_txt_prueba(datos.get('saludo1'), datos.get('saludo2'))
+    return jsonify({"Hola": mensaje})
 
 @app.route('/api/cargar', methods=['POST'])
 def ruta_cargar():

@@ -140,7 +140,8 @@ body {
   transition: 0.3s; 
 }
 
-.btn-primary { background: var(--primary); color: white; }
+.btn-primary { background: var(--primary); color: white;}
+.btn-primary_2 { background: var(--primary); color: white; margin-bottom: 15px; margin-top: -15px;}
 .btn-primary:hover { background: var(--primary-hover); }
 
 .btn-success { background: var(--success); color: white; width: 100%; margin-top: 20px; }
@@ -199,3 +200,35 @@ body {
   font-size: 0.85rem; 
   border: 1px solid var(--border);
 }
+
+/* --- NUEVO --- */
+.ip-card-upload {
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+
+.format-hint {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid var(--primary);
+  padding: 15px;
+  margin: 20px 0;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.ruta-display {
+  background: var(--console-bg);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  margin-bottom: 10px;
+}
+
