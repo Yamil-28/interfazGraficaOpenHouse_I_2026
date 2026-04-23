@@ -9,8 +9,9 @@ CORS(app)
 # Esta es la clase que te pasará tu equipo
 class GeneralCore:
     def __init__(self):
-        self.grafo = [] # Esta lista persistirá en memoria
-        self.rutaDeConexiones = None # Inicializamos en None
+ # Esta lista persistirá en memoria
+
+        self.lista = ["r_1","r_2","r_3","r_4","r_5"] # Inicializamos en None
         # Crea el archivo de prueba al iniciar el servidor
         print(">>> Objeto GeneralCore instanciado y listo.")
 
@@ -26,31 +27,54 @@ class GeneralCore:
         except Exception as e:
             print(f"Error al crear archivo de prueba: {e}")
 
-    def cargar_datos(self, ruta):
-        if not ruta:
-            return "Error: No se proporcionó una ruta válida."
-            
-        #  AQUÍ OCURRE LA MAGIA: Guardamos la ruta en el atributo del objeto
-        self.rutaDeConexiones = ruta 
-        
-        # Simulamos la carga
-        self.grafo = ["Router_LaPaz", "Router_Cochabamba", "Router_SantaCruz"]
-        
-        return f"Dirección {self.rutaDeConexiones} guardada en RAM."
 
-    def aplicar_enrutamiento(self, protocolo, nodos):
-        # Aquí se modificaría el objeto que ya existe en memoria
-        return f"Protocolo {protocolo} aplicado a {nodos}"
+    def mostrar_routers(self,lista_routers):
+        self.grafo = lista_routers
+        return f"Routers en RAM: {lista_routers}"
+    
+    def aplicar_enrutamiento(self,protocolo, routers):
+        with open("enrutamiento_log.txt", "a", encoding="utf-8") as log_file:
+            log_file.write(f"--- Enrutamiento aplicado: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ---\n")
+            log_file.write(f"Protocolo seleccionado: {protocolo}\n")
+            log_file.write(f"Routers seleccionados para enrutamiento: {routers}\n\n")
+        # Aquí iría la lógica de enrutamiento basada en el protocolo seleccionado
+        return "Enrutamiento aplicado con éxito."
+
     
     def cargarIPs(self, IPs):
         print(f"Ruta de IPs recibida: {IPs}")
         return f"Ruta de IPs: {IPs}"
+    def cargar_datos(self, ruta):
+        if not ruta:
+            return "Error: No se proporcionó una ruta válida."
+           
+        #  AQUÍ OCURRE LA MAGIA: Guardamos la ruta en el atributo del objeto
+        self.rutaDeConexiones = ruta
+       
+       
+        return f"Dirección {self.rutaDeConexiones} guardada en RAM."
 
 # CREACIÓN DEL OBJETO ÚNICO (Singleton)
 nucleo = GeneralCore()
 
 
 # --- RUTAS DE LA API REST ---
+@app.route('/api/cargar', methods=['POST'])
+def ruta_cargar():
+    datos = request.json
+    mensaje = nucleo.cargar_datos(datos.get('ruta'))
+    return jsonify({
+        "mensaje": mensaje,
+        "ruta_almacenada": nucleo.rutaDeConexiones
+    })
+
+@app.route('/api/obtener-routers', methods=['POST'])
+def listaDeRouters():
+    mensaje = nucleo.mostrar_routers(nucleo.lista)
+    return jsonify({
+        "routers": nucleo.grafo
+
+    })
 
 @app.route('/api/cargarIPs', methods=['POST'])
 def ruta_IPs():
@@ -65,15 +89,10 @@ def ruta_guardar():
     mensaje = nucleo.crear_txt_prueba(datos.get('saludo1'), datos.get('saludo2'))
     return jsonify({"Hola": mensaje})
 
-@app.route('/api/cargar', methods=['POST'])
-def ruta_cargar():
-    datos = request.json
-    mensaje = nucleo.cargar_datos(datos.get('ruta')) 
-    return jsonify({
-        "mensaje": mensaje, 
-        "routers": nucleo.grafo,
-        "ruta_almacenada": nucleo.rutaDeConexiones 
-    })
+@app.route('/api/mostrarlistaRouters', methods=['GET'])
+def obtenerLista():
+    return jsonify({lista_routers})
+
 
 # RESTAURADO: Esta ruta es necesaria para que funcione la pestaña de Protocolos
 @app.route('/api/protocolo', methods=['POST'])

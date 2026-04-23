@@ -9,6 +9,7 @@ function App() {
   const [rutaCSV, setRutaCSV] = useState("")
   const [dispositivosConfirmados, setDispositivosConfirmados] = useState(false)
   const [ipsCargadas, setIpsCargadas] = useState(false)
+  const [routers, setRouters] = useState([])
   const [consola, setConsola] = useState(["> AutoPKT Iniciado. Listo para operar."])
   const consolaRef = useRef(null)
 
@@ -54,7 +55,6 @@ function App() {
       })
       const data = await res.json()
       setDispositivosConfirmados(true)
-      setRoutersDisponibles(data.routers) 
       log(`Éxito: ${data.mensaje}`)
       
       const res2 = await fetch('http://127.0.0.1:5000/api/guardar', {
@@ -83,13 +83,48 @@ function App() {
       const data = await res.json()
 
       setIpsCargadas(true)
-      log(`Respuesta del servidor yammmm: ${data.mensaje}`)
+      log(`Respuesta del servidor yammmmil: ${data.mensaje}`)
     } catch (error) {
-      log("Error al intentar generar el archivo PKT.")
+      log("Error al intentar guardar ruta.")
     }
   }
 
-  
+  const mostrarRouters = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/mostrarlistaRouters',{
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      })
+      const data = await res.json()
+
+
+      setRouters(data.routers) // 🔥 ESTA LÍNEA FALTABA
+
+      log(`Routers recibidos: ${data.routers.join(', ')}`)
+    } catch (error) {
+      log("Error al obtener routers.")
+    }
+  }
+// --- LÓGICA DE LA PESTAÑA DE PROTOCOLOS ---
+  const handleObtenerRouters = async () => {
+    log("Invocando método 'obtener_nodos_red' en el núcleo de Python...");
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/obtener-routers',{
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      })
+      const data = await res.json();
+    
+    
+      setRoutersDisponibles(data.routers) 
+      log(`Lista sincronizada: ${data.routers.length} dispositivos listos.`);
+    } catch (error) {
+      log("Error: No se pudo invocar el método del objeto GeneralCore.");
+    }
+  };
+///----------
 
   const handleGenerarXML = async () => {
     log("Solicitando compilación final al servidor Python...")
@@ -226,14 +261,37 @@ const aplicarProtocolo = async (protocolo) => {
           </div>
         )
       case 'protocolos':
+        // --- LÓGICA DE LÍMITE DE PROTOCOLOS ---
+        // 1. Extraemos qué protocolos ya se han usado (quitando duplicados con Set)
+        const protocolosUsados = [...new Set(configuraciones.map(conf => conf.protocolo))]
+        // 2. Verificamos si ya llegamos al límite de 2
+        const limiteAlcanzado = protocolosUsados.length >= 2
+
+        // 3. Función que decide si un botón específico debe bloquearse
+        const estaDeshabilitado = (nombreProtocolo) => {
+          if (routersSeleccionados.length === 0) return true // Bloqueado si no hay routers seleccionados
+          if (limiteAlcanzado && !protocolosUsados.includes(nombreProtocolo)) return true // Bloqueado si ya hay 2 diferentes y este es el 3ro
+          return false
+          }
+
         return (
           <div className="tab-panel">
             <h2>Enrutamiento Dinámico por Zonas</h2>
-            <p style={{color: 'var(--text-muted)'}}>Selecciona los routers que pertenecerán a una misma zona y aplica su protocolo correspondiente.</p>
+            <p style={{color: 'var(--text-muted)'}}>Gestiona los protocolos de los dispositivos. (Máximo 2 protocolos diferentes por topología).</p>
             
-            <h4 style={{marginBottom: '10px', color: 'var(--text-main)'}}>1. Selecciona Routers Disponibles:</h4>
-            <div className="router-list">
-              {routersDisponibles.length === 0 ? <span style={{color: 'var(--text-muted)', fontStyle: 'italic'}}>No hay routers disponibles para configurar. (Sube un CSV en 'Conexiones' y confírmalo).</span> : null}
+            <div style={{ marginBottom: '20px' }}>
+              <button className="btn btn-primary" onClick={handleObtenerRouters}>
+                🔄 Obtener lista de routers de Python
+              </button>
+            </div>
+
+            <h4 style={{marginBottom: '10px', color: 'var(--text-main)'}}>1. Selecciona Routers para la zona:</h4>
+            <div className="router-list" style={{ minHeight: '60px', padding: '10px', background: 'var(--console-bg)', borderRadius: '8px' }}>
+              {routersDisponibles.length === 0 ? (
+                <span style={{color: 'var(--text-muted)', fontStyle: 'italic'}}>
+                  Presiona el botón superior para cargar los routers desde la RAM de Python.
+                </span>
+              ) : null}
               {routersDisponibles.map(router => (
                 <div 
                   key={router} 
@@ -245,16 +303,50 @@ const aplicarProtocolo = async (protocolo) => {
               ))}
             </div>
 
-            <h4 style={{marginBottom: '10px', color: 'var(--text-main)'}}>2. Aplicar Protocolo a la selección:</h4>
-            <div style={{display: 'flex', gap: '10px', marginBottom: '25px'}}>
-              <button className="btn btn-primary" disabled={routersSeleccionados.length === 0} onClick={() => aplicarProtocolo('OSPF')}>+ Asignar OSPF</button>
-              <button className="btn btn-primary" disabled={routersSeleccionados.length === 0} onClick={() => aplicarProtocolo('RIP')}>+ Asignar RIP</button>
-              <button className="btn btn-primary" disabled={routersSeleccionados.length === 0} onClick={() => aplicarProtocolo('EIGRP')}>+ Asignar EIGRP</button>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '20px', marginBottom: '10px'}}>
+              <h4 style={{margin: 0, color: 'var(--text-main)'}}>2. Aplicar Protocolo:</h4>
+              {limiteAlcanzado && (
+                <span style={{fontSize: '0.8rem', color: '#ef4444', fontWeight: 'bold'}}>
+                  ⚠️ Límite de 2 protocolos alcanzado
+                </span>
+              )}
             </div>
 
-            <h4 style={{marginBottom: '10px', color: 'var(--text-main)'}}>Zonas Configuradas:</h4>
-            <div>
-              {configuraciones.length === 0 ? <p style={{fontSize: '0.85rem', color: 'var(--text-muted)'}}>Aún no se han configurado protocolos.</p> : null}
+            {/* --- BOTONES DE LOS 3 PROTOCOLOS --- */}
+            <div style={{display: 'flex', gap: '10px', marginBottom: '25px'}}>
+              <button 
+                className="btn btn-success protocol-btn" 
+                style={{ flex: 1 }}
+                disabled={estaDeshabilitado('OSPF')} 
+                onClick={() => aplicarProtocolo('OSPF')}
+              >
+                📡 Aplicar OSPF
+              </button>
+              
+              <button 
+                className="btn btn-success protocol-btn" 
+                style={{ flex: 1 }}
+                disabled={estaDeshabilitado('RIP')} 
+                onClick={() => aplicarProtocolo('RIP')}
+              >
+                📡 Aplicar RIP
+              </button>
+
+              <button 
+                className="btn btn-success protocol-btn" 
+                style={{ flex: 1 }}
+                disabled={estaDeshabilitado('EIGRP')} 
+                onClick={() => aplicarProtocolo('EIGRP')}
+              >
+                📡 Aplicar EIGRP
+              </button>
+            </div>
+
+            <h4 style={{marginBottom: '10px', color: 'var(--text-main)'}}>Zonas Configuradas en Memoria:</h4>
+            <div className="zonas-container">
+              {configuraciones.length === 0 ? (
+                <p style={{fontSize: '0.85rem', color: 'var(--text-muted)'}}>No hay configuraciones activas.</p>
+              ) : null}
               {configuraciones.map((conf, index) => (
                 <div key={index} className="config-badge">
                   <strong>[Zona {conf.protocolo}]</strong>

@@ -232,3 +232,35 @@ body {
   margin-bottom: 10px;
 }
 
+
+/* --- ESTILOS PARA LOS BOTONES DE PROTOCOLO --- */
+
+.protocol-btn {
+  transition: all 0.3s ease;
+}
+
+/* Cuando un botón está deshabilitado (ya sea porque no hay routers seleccionados o por el límite) */
+.protocol-btn:disabled {
+  background-color: var(--console-bg) !important;
+  color: #64748b !important;
+  border: 1px dashed var(--border) !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none; /* Quita el efecto de levantarse */
+  box-shadow: none;
+}
+
+/* Añade un pequeño mensaje visual flotante al intentar clickear un botón apagado */
+.protocol-btn:disabled:hover::after {
+  content: "No disponible";
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}

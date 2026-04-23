@@ -1,0 +1,4 @@
+--- Enrutamiento aplicado: 2026-04-23 00:40:44 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['r_1', 'r_2']
+
