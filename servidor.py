@@ -10,8 +10,9 @@ CORS(app)
 class GeneralCore:
     def __init__(self):
  # Esta lista persistirá en memoria
-
-        self.lista = ["r_1","r_2","r_3","r_4","r_5"] # Inicializamos en None
+        self.rutaDeConexiones = None # Inicializamos en None para evitar errores de referencia
+        self.lista = ["R1","R2","R3","R4","R5"] # Simulamos una lista de routers en RAM
+        self.grafo = []# Inicializamos en None
         # Crea el archivo de prueba al iniciar el servidor
         print(">>> Objeto GeneralCore instanciado y listo.")
 
@@ -30,7 +31,7 @@ class GeneralCore:
 
     def mostrar_routers(self,lista_routers):
         self.grafo = lista_routers
-        return f"Routers en RAM: {lista_routers}"
+        return lista_routers
     
     def aplicar_enrutamiento(self,protocolo, routers):
         with open("enrutamiento_log.txt", "a", encoding="utf-8") as log_file:
@@ -53,6 +54,9 @@ class GeneralCore:
        
        
         return f"Dirección {self.rutaDeConexiones} guardada en RAM."
+    
+    def aplicarEnrutamiento(self, dic):
+        print("Simulación:", dic)
 
 # CREACIÓN DEL OBJETO ÚNICO (Singleton)
 nucleo = GeneralCore()
@@ -68,11 +72,11 @@ def ruta_cargar():
         "ruta_almacenada": nucleo.rutaDeConexiones
     })
 
-@app.route('/api/obtener-routers', methods=['POST'])
+@app.route('/api/obtener-routers', methods=['GET'])
 def listaDeRouters():
-    mensaje = nucleo.mostrar_routers(nucleo.lista)
+    routers = nucleo.mostrar_routers(nucleo.lista)
     return jsonify({
-        "routers": nucleo.grafo
+        "routers": routers
 
     })
 
@@ -91,15 +95,24 @@ def ruta_guardar():
 
 @app.route('/api/mostrarlistaRouters', methods=['GET'])
 def obtenerLista():
-    return jsonify({lista_routers})
+    return jsonify({
+        "routers": nucleo.lista
+    })
 
 
 # RESTAURADO: Esta ruta es necesaria para que funcione la pestaña de Protocolos
 @app.route('/api/protocolo', methods=['POST'])
 def ruta_protocolo():
     datos = request.json
-    mensaje = nucleo.aplicar_enrutamiento(datos.get('protocolo'), datos.get('routers'))
-    return jsonify({"mensaje": mensaje})
+
+    protocolo = datos.get('protocolo')   # "OSPF"
+    routers = datos.get('routers')       # ["R1", "R2"]
+
+    dic = {protocolo: routers}           # 👈 ESTO ES TU TRABAJO
+    print("Dic: ", dic)
+    nucleo.aplicarEnrutamiento(dic)   # 👈 se lo pasas
+
+    return jsonify({"mensaje": "ok"})
 
 # CORREGIDO: Una sola ruta de estado que devuelve la info correcta
 @app.route('/api/estado', methods=['GET'])

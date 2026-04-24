@@ -1,0 +1,28 @@
+   <PDU>
+    <TYPE patterned="no">0</TYPE>
+    <CUSTOM_TYPE></CUSTOM_TYPE>
+    <SOURCE>{origenRefId}</SOURCE>
+    <PORT/>
+    <DESTINATION device="{destinoRefId}"></DESTINATION>
+    <COLOR>{color}</COLOR>
+    <PDU>
+     <TYPE>CIpHeader</TYPE>
+     <SRCADDR/>
+     <DSTADDR>{destinoIp}</DSTADDR>
+     <PROTOCOL/>
+     <TTL>255</TTL>
+     <PDU>
+      <TYPE>CIcmpMessage</TYPE>
+      <ICMPTYPE>8</ICMPTYPE>
+      <CODE>0</CODE>
+      <ID>0</ID>
+      <SEQ>0</SEQ>
+      <CHK>0</CHK>
+     </PDU>
+     <TOS>0</TOS>
+    </PDU>
+    <TEST_CONDITION>0</TEST_CONDITION>
+    <POINTS>1</POINTS>
+    <PDU_SIZE>0</PDU_SIZE>
+    <START>0</START>
+   </PDU>

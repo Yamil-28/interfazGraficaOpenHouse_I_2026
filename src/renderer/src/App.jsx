@@ -47,29 +47,20 @@ function App() {
  const handleConfirmarDispositivos = async () => {
     log("Enviando ruta real de topología al núcleo de Python...")
     try {
-      // Usamos 127.0.0.1 que es 100% seguro contra bloqueos de Windows
+      
       const res = await fetch('http://127.0.0.1:5000/api/cargar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ruta: rutaCSV }) 
       })
+      
       const data = await res.json()
       setDispositivosConfirmados(true)
-      log(`Éxito: ${data.mensaje}`)
-      
-      const res2 = await fetch('http://127.0.0.1:5000/api/guardar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ saludo1: rutaCSV, saludo2: rutaCSV })
-      });
-
-      console.log(res2); // 👈 agrega esto
-      const data2 = await res2.json();
-      console.log(data2);
+      log("Éxito: " + data.mensaje)
 
     } catch (error) {
       console.error(error) // Para ver el error real con F12 si falla
-      log("Error Fatal: No se pudo contactar al servidor Python en 127.0.0.1.")
+      log("Error Fatal: No se pudo contactar al servidor Python en 127.0.0.1." + error)
     }
   }
 
@@ -107,19 +98,14 @@ function App() {
     }
   }
 // --- LÓGICA DE LA PESTAÑA DE PROTOCOLOS ---
-  const handleObtenerRouters = async () => {
+ const handleObtenerRouters = async () => {
     log("Invocando método 'obtener_nodos_red' en el núcleo de Python...");
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/obtener-routers',{
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      })
-      const data = await res.json();
-    
-    
-      setRoutersDisponibles(data.routers) 
-      log(`Lista sincronizada: ${data.routers.length} dispositivos listos.`);
+      const res = await fetch('http://127.0.0.1:5000/api/obtener-routers'); // 👈 SIN POST
+    const data = await res.json();
+
+    setRoutersDisponibles(data.routers);
+    log(`Lista sincronizada: ${data.routers.length} dispositivos listos.`);
     } catch (error) {
       log("Error: No se pudo invocar el método del objeto GeneralCore.");
     }
@@ -130,11 +116,13 @@ function App() {
     log("Solicitando compilación final al servidor Python...")
     try {
       // En el futuro, Python tendrá esta ruta para exportar todo lo que tiene en memoria
-      const res = await fetch('http://127.0.0.1:5000/api/exportar', {
+      const res = await fetch('http://127.0.0.1:5000/api/generar_pkt', {
         method: 'POST'
       })
+      
       const data = await res.json()
-      log(`Exportación: ${data.mensaje}`)
+      
+      log(`Exportación: ${data.bandera}`)
     } catch (error) {
       log("Error al intentar generar el archivo PKT.")
     }
@@ -363,7 +351,7 @@ const aplicarProtocolo = async (protocolo) => {
             <div style={{width: '100%', height: '220px', background: 'var(--console-bg)', border: '1px solid var(--border)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', marginBottom: '15px'}}>
               [Lienzo Reservado para Renderizado de Grafo de Red]
             </div>
-            <button className="btn btn-success" disabled={!dispositivosConfirmados} onClick={handleGenerarXML}>
+            <button className="btn btn-success" onClick={handleGenerarXML}>
               🚀 CONSTRUIR ARCHIVO PKT FINAL
             </button>
           </div>

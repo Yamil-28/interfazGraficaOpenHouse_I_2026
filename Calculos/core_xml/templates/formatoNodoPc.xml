@@ -1,0 +1,29 @@
+        <NODE>
+         <X>0</X>
+         <Y>0</Y>
+         <TYPE>6</TYPE>
+         <NAME translate="true">{nombre}</NAME>
+         <SX>1</SX>
+         <SY>1</SY>
+         <W>0</W>
+         <H>0</H>
+         <D>0</D>
+         <PATH isanim="false">../art/Background/grid_100x100.png</PATH>
+         <CHILDREN/>
+         <MANUAL_SCALING>false</MANUAL_SCALING>
+         <SCALED_PIXMAP_WIDTH>0</SCALED_PIXMAP_WIDTH>
+         <SCALED_PIXMAP_HEIGHT>0</SCALED_PIXMAP_HEIGHT>
+         <INIT_WIDTH>0</INIT_WIDTH>
+         <INIT_HEIGHT>0</INIT_HEIGHT>
+         <INIT_DEPTH>0</INIT_DEPTH>
+         <INIT_SX>1</INIT_SX>
+         <INIT_SY>1</INIT_SY>
+         <INIT_SZ>1</INIT_SZ>
+         <BG_TILED>false</BG_TILED>
+         <CUSTOM_IMAGE_WIDTH>-1</CUSTOM_IMAGE_WIDTH>
+         <CUSTOM_IMAGE_HEIGHT>-1</CUSTOM_IMAGE_HEIGHT>
+         <SCALE_FACTOR>1</SCALE_FACTOR>
+         <UUID_STR>{uuidPC}</UUID_STR>
+         <SLOT>0</SLOT>
+         <SUB_SLOT>0</SUB_SLOT>
+        </NODE>

@@ -2,3 +2,43 @@
 Protocolo seleccionado: OSPF
 Routers seleccionados para enrutamiento: ['r_1', 'r_2']
 
+--- Enrutamiento aplicado: 2026-04-23 12:02:06 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['r_1', 'r_2']
+
+--- Enrutamiento aplicado: 2026-04-23 12:02:10 ---
+Protocolo seleccionado: EIGRP
+Routers seleccionados para enrutamiento: ['r_5', 'r_4', 'r_3']
+
+--- Enrutamiento aplicado: 2026-04-23 16:07:00 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['r_1', 'r_2']
+
+--- Enrutamiento aplicado: 2026-04-23 16:07:03 ---
+Protocolo seleccionado: RIP
+Routers seleccionados para enrutamiento: ['r_5']
+
+--- Enrutamiento aplicado: 2026-04-23 16:34:35 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['R1', 'R2']
+
+--- Enrutamiento aplicado: 2026-04-23 16:37:41 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['R1', 'R2']
+
+--- Enrutamiento aplicado: 2026-04-23 16:38:05 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['R2', 'R1']
+
+--- Enrutamiento aplicado: 2026-04-23 16:38:08 ---
+Protocolo seleccionado: RIP
+Routers seleccionados para enrutamiento: ['R4', 'R3']
+
+--- Enrutamiento aplicado: 2026-04-23 16:38:49 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['R1', 'R3', 'R2', 'R4', 'R5']
+
+--- Enrutamiento aplicado: 2026-04-23 16:44:24 ---
+Protocolo seleccionado: OSPF
+Routers seleccionados para enrutamiento: ['R3', 'R2']
+

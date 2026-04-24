@@ -51,7 +51,7 @@ app.whenReady().then(() => {
   createWindow()
 
   // 4. Encendemos el Servidor Persistente de Python
-  const rutaServidor = path.join(__dirname, '../../servidor.py')
+  const rutaServidor = path.join(__dirname, '../../Calculos/principal.py')
   servidorPython = spawn('python', [rutaServidor])
   
   servidorPython.stdout.on('data', (data) => console.log(`Python: ${data}`))
